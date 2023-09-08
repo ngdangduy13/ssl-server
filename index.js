@@ -34,6 +34,12 @@ app.post("/ssl/:domain", (req, res) => {
   res.send("Success!");
 });
 
+app.delete("/ssl/:domain", (req, res) => {
+  const { domain } = req.params;
+  fs.unlinkSync(`/etc/nginx/sites-enabled/${domain}`);
+  res.send("Success!");
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
