@@ -1,5 +1,5 @@
 const express = require("express");
-const { execSync } = require("child_process");
+const { execSync, exec } = require("child_process");
 const fs = require("fs");
 
 const app = express();
@@ -26,13 +26,18 @@ app.get("/health-check", (req, res) => {
   res.send("Ok!");
 });
 
-app.post("/ssl/:domain", (req, res) => {
-  const { domain } = req.params;
-  const path = `/etc/nginx/sites-enabled/${domain}`;
-  if (fs.existsSync(path)) {
-    fs.writeFileSync(`/etc/nginx/sites-enabled/${domain}`, getNginxConfig(domain, proxy_pass));
-    execSync(`sudo certbot -d ${domain} --force-renewal`);
+app.post("/ssl/:domains", async (req, res) => {
+  const { domains } = req.params;
+  const domainList = domains.split(",");
+
+  for (const domain of domainList) {
+    const path = `/etc/nginx/sites-enabled/${domain}`;
+    if (fs.existsSync(path)) {
+      fs.writeFileSync(`/etc/nginx/sites-enabled/${domain}`, getNginxConfig(domain, proxy_pass));
+    }
   }
+
+  execSync(`sudo certbot ${domainList.map((domain) => `-d ${domain}`).join(" ")} --force-renewal`);
   res.send("Success!");
 });
 
