@@ -37,6 +37,7 @@ app.post("/ssl/:domain", (req, res) => {
 app.delete("/ssl/:domain", (req, res) => {
   const { domain } = req.params;
   fs.unlinkSync(`/etc/nginx/sites-enabled/${domain}`);
+  execSync(`sudo systemctl reload nginx`);
   res.send("Success!");
 });
 
