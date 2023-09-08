@@ -29,12 +29,11 @@ app.get("/health-check", (req, res) => {
 app.post("/ssl/:domains", async (req, res) => {
   const { domains } = req.params;
   const domainList = domains.split(",");
+  console.log(`sudo certbot ${domainList.map((domain) => `-d ${domain}`).join(" ")} --force-renewal`);
 
   for (const domain of domainList) {
     const path = `/etc/nginx/sites-enabled/${domain}`;
-    if (fs.existsSync(path)) {
-      fs.writeFileSync(`/etc/nginx/sites-enabled/${domain}`, getNginxConfig(domain, proxy_pass));
-    }
+    fs.writeFileSync(path, getNginxConfig(domain, proxy_pass));
   }
 
   execSync(`sudo certbot ${domainList.map((domain) => `-d ${domain}`).join(" ")} --force-renewal`);
