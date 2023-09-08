@@ -28,16 +28,21 @@ app.get("/health-check", (req, res) => {
 
 app.post("/ssl/:domain", (req, res) => {
   const { domain } = req.params;
-  fs.writeFileSync(`/etc/nginx/sites-enabled/${domain}`, getNginxConfig(domain, proxy_pass));
-  const stdout = execSync(`sudo certbot -d ${domain} --force-renewal`);
-  console.log({ domain, result: stdout.toString() });
+  const path = `/etc/nginx/sites-enabled/${domain}`;
+  if (fs.existsSync(path)) {
+    fs.writeFileSync(`/etc/nginx/sites-enabled/${domain}`, getNginxConfig(domain, proxy_pass));
+    execSync(`sudo certbot -d ${domain} --force-renewal`);
+  }
   res.send("Success!");
 });
 
 app.delete("/ssl/:domain", (req, res) => {
   const { domain } = req.params;
-  fs.unlinkSync(`/etc/nginx/sites-enabled/${domain}`);
-  execSync(`sudo systemctl reload nginx`);
+  const path = `/etc/nginx/sites-enabled/${domain}`;
+  if (fs.existsSync(path)) {
+    fs.unlinkSync(`/etc/nginx/sites-enabled/${domain}`);
+    execSync(`sudo systemctl reload nginx`);
+  }
   res.send("Success!");
 });
 
