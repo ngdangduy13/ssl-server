@@ -16,6 +16,7 @@ app.post("/ssl/:domains", async (req, res) => {
   const domainList = domains.split(",");
 
   await Promise.all(domainList.map((domain) => generateSSL(domain)));
+  execSync(`sudo systemctl reload nginx`);
 
   res.send("Success!");
 });
