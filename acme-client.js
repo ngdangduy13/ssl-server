@@ -107,11 +107,12 @@ async function generateSSL(domain) {
   log(`Private key:\n${key.toString()}`);
   log(`Certificate:\n${cert.toString()}`);
 
-  const basePath = `/etc/ssl/${domain}`;
-  const csrPath = `${basePath}/crs.cert`;
-  const privateKeyPath = `${basePath}/privkey.pem`;
-  const certPath = `${basePath}/fullchain.pem`;
+  const directory = `/etc/ssl/${domain}`;
+  const csrPath = `${directory}/crs.cert`;
+  const privateKeyPath = `${directory}/privkey.pem`;
+  const certPath = `${directory}/fullchain.pem`;
 
+  fs.mkdirSync(directory);
   fs.writeFileSync(csrPath, csr.toString());
   fs.writeFileSync(privateKeyPath, key.toString());
   fs.writeFileSync(cert, cert.toString());
