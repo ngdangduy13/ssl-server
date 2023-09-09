@@ -24,7 +24,18 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
         listen 443 ssl; 
         ssl_certificate  ${certPath}; 
         ssl_certificate_key  ${privKeyPath}; 
-    }`;
+    }
+    server {
+      if ($host = ${domain}) {
+        return 301 https://$host$request_uri;
+      }
+
+
+      server_name ${domain};
+      listen 80;
+      return 404; 
+    }
+    `;
 }
 
 app.get("/health-check", (req, res) => {
