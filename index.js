@@ -8,7 +8,7 @@ const port = 3000;
 
 const proxy_pass = "https://google.com";
 
-function getNginxConfig(domain, proxyPass) {
+function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
   return `server {
         server_name ${domain};
 
@@ -22,8 +22,8 @@ function getNginxConfig(domain, proxyPass) {
         }
 
         listen 443 ssl; 
-        ssl_certificate  /etc/ssl/${domain}/fullchain.pem; 
-        ssl_certificate_key  /etc/ssl/${domain}/privkey.pem; 
+        ssl_certificate  ${certPath}; 
+        ssl_certificate_key  ${privKeyPath}; 
     }`;
 }
 
@@ -34,12 +34,10 @@ app.get("/health-check", (req, res) => {
 app.post("/ssl/:domain", async (req, res) => {
   const { domain } = req.params;
 
-  // spawnSync(`sudo certbot -d ${domain} --force-renewal`);
-
-  await generateSSL(domain);
+  const { privateKeyPath, certPath, csrPath } = await generateSSL(domain);
 
   const path = `/etc/nginx/sites-enabled/${domain}`;
-  fs.writeFileSync(path, getNginxConfig(domain, proxy_pass));
+  fs.writeFileSync(path, getNginxConfig(domain, proxy_pass, certPath, privateKeyPath));
   res.send("Success!");
 });
 
