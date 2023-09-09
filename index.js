@@ -1,6 +1,7 @@
 const express = require("express");
-const { execSync, exec } = require("child_process");
+const { execSync, exec, spawnSync } = require("child_process");
 const fs = require("fs");
+const { generateSSL } = require("./acme-client");
 
 const app = express();
 const port = 3000;
@@ -26,16 +27,15 @@ app.get("/health-check", (req, res) => {
   res.send("Ok!");
 });
 
-app.post("/ssl/:domains", async (req, res) => {
-  const { domains } = req.params;
-  const domainList = domains.split(",");
+app.post("/ssl/:domain", async (req, res) => {
+  const { domain } = req.params;
 
-  for (const domain of domainList) {
-    const path = `/etc/nginx/sites-enabled/${domain}`;
-    fs.writeFileSync(path, getNginxConfig(domain, proxy_pass));
-  }
+  const path = `/etc/nginx/sites-enabled/${domain}`;
+  fs.writeFileSync(path, getNginxConfig(domain, proxy_pass));
 
-  execSync(`sudo certbot ${domainList.map((domain) => `-d ${domain}`).join(" ")} --force-renewal`);
+  spawnSync(`sudo certbot -d ${domain} --force-renewal`);
+
+  // generateSSL("test.com");
   res.send("Success!");
 });
 
