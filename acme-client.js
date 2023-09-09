@@ -83,7 +83,7 @@ async function challengeRemoveFn(authz, challenge, keyAuthorization) {
 async function generateSSL(domain) {
   /* Init client */
   const client = new acme.Client({
-    directoryUrl: acme.directory.letsencrypt.staging,
+    directoryUrl: acme.directory.letsencrypt.production,
     accountKey: await acme.crypto.createPrivateKey(),
   });
 
