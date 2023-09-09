@@ -102,11 +102,6 @@ async function generateSSL(domain) {
     skipChallengeVerification: true,
   });
 
-  /* Done */
-  log(`CSR:\n${csr.toString()}`);
-  log(`Private key:\n${key.toString()}`);
-  log(`Certificate:\n${cert.toString()}`);
-
   const directory = `/etc/ssl/${domain}`;
   const csrPath = `${directory}/crs.cert`;
   const privateKeyPath = `${directory}/privkey.pem`;
