@@ -110,7 +110,7 @@ async function generateSSL(domain) {
   fs.mkdirSync(directory, { recursive: true });
   fs.writeFileSync(csrPath, csr.toString());
   fs.writeFileSync(privateKeyPath, key.toString());
-  fs.writeFileSync(cert, cert.toString());
+  fs.writeFileSync(certPath, cert.toString());
 
   return {
     privateKeyPath,
