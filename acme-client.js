@@ -28,7 +28,7 @@ async function challengeCreateFn(authz, challenge, keyAuthorization) {
 
     log(`Creating challenge response for ${authz.identifier.value} at path: ${filePath}`);
 
-    await fs.writeFile(filePath, fileContents);
+    fs.writeFileSync(filePath, fileContents);
   } else if (challenge.type === "dns-01") {
     /* dns-01 */
     const dnsRecord = `_acme-challenge.${authz.identifier.value}`;
@@ -62,7 +62,7 @@ async function challengeRemoveFn(authz, challenge, keyAuthorization) {
 
     /* Replace this */
     log(`Would remove file on path "${filePath}"`);
-    await fs.unlink(filePath);
+    fs.unlinkSync(filePath);
   } else if (challenge.type === "dns-01") {
     /* dns-01 */
     const dnsRecord = `_acme-challenge.${authz.identifier.value}`;
@@ -112,11 +112,10 @@ async function generateSSL(domain) {
   const privateKeyPath = `${basePath}/privkey.pem`;
   const certPath = `${basePath}/fullchain.pem`;
 
-  await Promise.all([
-    fs.writeFile(csrPath, csr.toString()),
-    fs.writeFile(privateKeyPath, key.toString()),
-    fs.writeFile(cert, cert.toString()),
-  ]);
+  fs.writeFileSync(csrPath, csr.toString());
+  fs.writeFileSync(privateKeyPath, key.toString());
+  fs.writeFileSync(cert, cert.toString());
+
   return {
     privateKeyPath,
     certPath,
@@ -126,4 +125,6 @@ async function generateSSL(domain) {
 
 module.exports = {
   generateSSL,
+  challengeCreateFn,
+  challengeRemoveFn,
 };
