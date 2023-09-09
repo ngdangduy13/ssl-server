@@ -76,9 +76,38 @@ async function challengeRemoveFn(authz, challenge, keyAuthorization) {
   }
 }
 
-/**
- * Main
- */
+const proxy_pass = "https://google.com";
+
+function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
+  return `server {
+        server_name ${domain};
+
+        location / {
+            proxy_pass                          ${proxyPass};
+            proxy_set_header  Host              $http_host;
+            proxy_set_header  X-Real-IP         $remote_addr;
+            proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header  X-Forwarded-Proto $scheme;
+            proxy_read_timeout                  900;
+        }
+
+        listen 443 ssl; 
+        ssl_certificate  ${certPath}; 
+        ssl_certificate_key  ${privKeyPath}; 
+        include /etc/ssl/options-ssl-nginx.conf;
+    }
+    server {
+      if ($host = ${domain}) {
+        return 301 https://$host$request_uri;
+      }
+
+
+      server_name ${domain};
+      listen 80;
+      return 404; 
+    }
+    `;
+}
 
 async function generateSSL(domain) {
   /* Init client */
@@ -111,6 +140,9 @@ async function generateSSL(domain) {
   fs.writeFileSync(csrPath, csr.toString());
   fs.writeFileSync(privateKeyPath, key.toString());
   fs.writeFileSync(certPath, cert.toString());
+
+  const path = `/etc/nginx/sites-enabled/${domain}`;
+  fs.writeFileSync(path, getNginxConfig(domain, proxy_pass, certPath, privateKeyPath));
 
   return {
     privateKeyPath,

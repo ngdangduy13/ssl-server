@@ -6,50 +6,17 @@ const { generateSSL } = require("./acme-client");
 const app = express();
 const port = 3000;
 
-const proxy_pass = "https://google.com";
-
-function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
-  return `server {
-        server_name ${domain};
-
-        location / {
-            proxy_pass                          ${proxyPass};
-            proxy_set_header  Host              $http_host;
-            proxy_set_header  X-Real-IP         $remote_addr;
-            proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
-            proxy_set_header  X-Forwarded-Proto $scheme;
-            proxy_read_timeout                  900;
-        }
-
-        listen 443 ssl; 
-        ssl_certificate  ${certPath}; 
-        ssl_certificate_key  ${privKeyPath}; 
-        include /etc/ssl/options-ssl-nginx.conf;
-    }
-    server {
-      if ($host = ${domain}) {
-        return 301 https://$host$request_uri;
-      }
-
-
-      server_name ${domain};
-      listen 80;
-      return 404; 
-    }
-    `;
-}
-
 app.get("/health-check", (req, res) => {
   res.send("Ok!");
 });
 
-app.post("/ssl/:domain", async (req, res) => {
-  const { domain } = req.params;
+app.post("/ssl/:domains", async (req, res) => {
+  const { domains } = req.params;
 
-  const { privateKeyPath, certPath, csrPath } = await generateSSL(domain);
+  const domainList = domains.split(",");
 
-  const path = `/etc/nginx/sites-enabled/${domain}`;
-  fs.writeFileSync(path, getNginxConfig(domain, proxy_pass, certPath, privateKeyPath));
+  await Promise.all(domainList.map((domain) => generateSSL(domain)));
+
   res.send("Success!");
 });
 
