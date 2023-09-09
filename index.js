@@ -24,6 +24,7 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
         listen 443 ssl; 
         ssl_certificate  ${certPath}; 
         ssl_certificate_key  ${privKeyPath}; 
+        include /etc/ssl/options-ssl-nginx.conf;
     }
     server {
       if ($host = ${domain}) {
