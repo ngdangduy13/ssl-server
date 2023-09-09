@@ -112,7 +112,7 @@ async function generateSSL(domain) {
   const privateKeyPath = `${directory}/privkey.pem`;
   const certPath = `${directory}/fullchain.pem`;
 
-  fs.mkdirSync(directory);
+  fs.mkdirSync(directory, { recursive: true });
   fs.writeFileSync(csrPath, csr.toString());
   fs.writeFileSync(privateKeyPath, key.toString());
   fs.writeFileSync(cert, cert.toString());
