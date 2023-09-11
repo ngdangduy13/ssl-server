@@ -112,7 +112,7 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
 async function generateSSL(domain) {
   /* Init client */
   const client = new acme.Client({
-    directoryUrl: acme.directory.letsencrypt.production,
+    directoryUrl: acme.directory.zerossl.production,
     accountKey: await acme.crypto.createPrivateKey(),
   });
 
@@ -128,7 +128,6 @@ async function generateSSL(domain) {
     termsOfServiceAgreed: true,
     challengeCreateFn,
     challengeRemoveFn,
-    skipChallengeVerification: true,
   });
 
   const directory = `/etc/ssl/${domain}`;
