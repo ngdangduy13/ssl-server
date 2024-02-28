@@ -11,14 +11,18 @@ app.get("/health-check", (req, res) => {
 });
 
 app.post("/ssl/:domains", async (req, res) => {
-  const { domains } = req.params;
+  try {
+    const { domains } = req.params;
 
-  const domainList = domains.split(",");
+    const domainList = domains.split(",");
 
-  await Promise.all(domainList.map((domain) => generateSSL(domain)));
-  execSync(`sudo systemctl reload nginx`);
+    await Promise.all(domainList.map((domain) => generateSSL(domain)));
+    execSync(`sudo systemctl reload nginx`);
 
-  res.send("Success!");
+    res.send("Success!");
+  } catch (e) {
+    res.send(e);
+  }
 });
 
 app.delete("/ssl/:domain", (req, res) => {
