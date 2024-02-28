@@ -28,6 +28,7 @@ async function challengeCreateFn(authz, challenge, keyAuthorization) {
 
     log(`Creating challenge response for ${authz.identifier.value} at path: ${filePath}`);
 
+    log(`Would write "${fileContents}" to path "${filePath}"`);
     fs.writeFileSync(filePath, fileContents);
   } else if (challenge.type === "dns-01") {
     /* dns-01 */
@@ -109,11 +110,17 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
     `;
 }
 
+let accountKey;
+async function getAccountKey() {
+  if (!accountKey) accountKey = await acme.crypto.createPrivateKey();
+  return accountKey;
+}
+
 async function generateSSL(domain) {
   /* Init client */
   const client = new acme.Client({
     directoryUrl: acme.directory.letsencrypt.production,
-    accountKey: await acme.crypto.createPrivateKey(),
+    accountKey: await getAccountKey(),
   });
 
   /* Create CSR */
