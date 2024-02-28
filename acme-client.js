@@ -119,7 +119,7 @@ async function getAccountKey() {
 async function generateSSL(domain) {
   /* Init client */
   const client = new acme.Client({
-    directoryUrl: acme.directory.letsencrypt.production,
+    directoryUrl: acme.directory.zerossl.production,
     accountKey: await getAccountKey(),
   });
 
