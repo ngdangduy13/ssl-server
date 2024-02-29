@@ -1,6 +1,8 @@
 const acme = require("acme-client");
 const fs = require("fs");
-const PRIVATE_KEY = fs.readFileSync(path.join(__dirname, "..", "private-key.key"));
+const path = require('path');
+
+const PRIVATE_KEY = fs.readFileSync(path.join(__dirname, "private-key.key"));
 
 function log(m) {
   process.stdout.write(`${m}\n`);
