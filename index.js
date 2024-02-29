@@ -21,7 +21,7 @@ app.post("/ssl/:domains", async (req, res) => {
 
     res.send("Success!");
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.send(e);
   }
 });

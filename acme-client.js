@@ -1,5 +1,6 @@
 const acme = require("acme-client");
 const fs = require("fs");
+const PRIVATE_KEY = fs.readFileSync(path.join(__dirname, "..", "private-key.key"));
 
 function log(m) {
   process.stdout.write(`${m}\n`);
@@ -110,17 +111,20 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
     `;
 }
 
-let accountKey;
-async function getAccountKey() {
-  if (!accountKey) accountKey = await acme.crypto.createPrivateKey();
-  return accountKey;
-}
-
 async function generateSSL(domain) {
   /* Init client */
+  const directoryUrl = acme.directory.zerossl.production;
+  const eabRegistry = {
+    [acme.directory.zerossl.production]: {
+      kid: "sQfzc8GV6RdVCQgNaAkPAw",
+      hmacKey:
+        "P3coDuPduB0BGAouQ8ANRqOi2RQ1fD6snhJcM6jANlylZRcHokgtcuD0lALsxQMPpo1ncJc0zS2vp0gvsQr--g",
+    },
+  };
   const client = new acme.Client({
     directoryUrl: acme.directory.zerossl.production,
-    accountKey: await getAccountKey(),
+    accountKey: PRIVATE_KEY,
+    externalAccountBinding: eabRegistry[directoryUrl],
   });
 
   /* Create CSR */
