@@ -1,5 +1,8 @@
 const acme = require("acme-client");
 const fs = require("fs");
+const path = require("path");
+
+const PRIVATE_KEY = fs.readFileSync(path.join(__dirname, "private-key.key"));
 
 function log(m) {
   process.stdout.write(`${m}\n`);
@@ -28,6 +31,7 @@ async function challengeCreateFn(authz, challenge, keyAuthorization) {
 
     log(`Creating challenge response for ${authz.identifier.value} at path: ${filePath}`);
 
+    log(`Would write "${fileContents}" to path "${filePath}"`);
     fs.writeFileSync(filePath, fileContents);
   } else if (challenge.type === "dns-01") {
     /* dns-01 */
@@ -109,11 +113,25 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
     `;
 }
 
-async function generateSSL(domain) {
+async function generateSSL(domain, provider) {
   /* Init client */
+  const directoryRegistry = {
+    zerossl: acme.directory.zerossl.production,
+    letsencrypt: acme.directory.letsencrypt.production,
+  };
+  const directoryUrl = directoryRegistry[provider] || acme.directory.zerossl.production;
+
+  const eabRegistry = {
+    [acme.directory.zerossl.production]: {
+      kid: "sQfzc8GV6RdVCQgNaAkPAw",
+      hmacKey:
+        "P3coDuPduB0BGAouQ8ANRqOi2RQ1fD6snhJcM6jANlylZRcHokgtcuD0lALsxQMPpo1ncJc0zS2vp0gvsQr--g",
+    },
+  };
   const client = new acme.Client({
     directoryUrl: acme.directory.zerossl.production,
-    accountKey: await acme.crypto.createPrivateKey(),
+    accountKey: PRIVATE_KEY,
+    externalAccountBinding: eabRegistry[directoryUrl],
   });
 
   /* Create CSR */
