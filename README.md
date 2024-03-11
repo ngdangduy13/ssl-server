@@ -7,3 +7,4 @@ Step to deploy:
 1. Install pm2 globally
 2. Install dependencies: `npm i`
 3. Start server: `pm2 start index.js`
+4. Config nginx to redirect traffic from `/api` to this app
