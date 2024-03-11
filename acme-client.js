@@ -1,6 +1,6 @@
 const acme = require("acme-client");
 const fs = require("fs");
-const path = require('path');
+const path = require("path");
 
 const PRIVATE_KEY = fs.readFileSync(path.join(__dirname, "private-key.key"));
 
@@ -113,9 +113,14 @@ function getNginxConfig(domain, proxyPass, certPath, privKeyPath) {
     `;
 }
 
-async function generateSSL(domain) {
+async function generateSSL(domain, provider) {
   /* Init client */
-  const directoryUrl = acme.directory.zerossl.production;
+  const directoryRegistry = {
+    zerossl: acme.directory.zerossl.production,
+    letsencrypt: acme.directory.letsencrypt.production,
+  };
+  const directoryUrl = directoryRegistry[provider] || acme.directory.zerossl.production;
+
   const eabRegistry = {
     [acme.directory.zerossl.production]: {
       kid: "sQfzc8GV6RdVCQgNaAkPAw",
