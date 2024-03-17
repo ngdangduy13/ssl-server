@@ -129,7 +129,7 @@ async function generateSSL(domain, provider) {
     },
   };
   const client = new acme.Client({
-    directoryUrl: acme.directory.zerossl.production,
+    directoryUrl,
     accountKey: PRIVATE_KEY,
     externalAccountBinding: eabRegistry[directoryUrl],
   });
